@@ -33,11 +33,11 @@ public class DogPieceController {
     public int getDogCol() {return dogCol;}
     public String getPieceType(){return dogPiece.getPieceType();}
 
-    public void setPiecePositions(int movementNumber , Point piecePosition) {
-        dogPiece.setPiecePositions(movementNumber , piecePosition );
+    public void setPiecePositions(Point piecePosition) {
+        dogPiece.setPiecePositions(piecePosition );
     }
 
     // get the piece position on one position before the last move
-    public Point getPieceOldPosition() { return dogPiece.getLastPosition();}
+   // public Point getPieceOldPosition() { return dogPiece.getLastPosition();}
 
 }

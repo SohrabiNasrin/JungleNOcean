@@ -2,6 +2,7 @@ package view;
 
 import com.sun.javafx.binding.StringFormatter;
 import controller.BoardController;
+import controller.PieceController;
 import model.Player;
 import model.piece.Piece;
 
@@ -14,14 +15,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 import static javax.swing.text.StyleConstants.FontSize;
 
-public class SquareBoard implements Board {
+public class SquareBoard implements Board, Observer {
 
     private BoardController boardController;
 
@@ -35,12 +33,17 @@ public class SquareBoard implements Board {
     private int rowState , colState;
     private final JLabel message = new JLabel(
             "Animals are ready to play!");
+
+    // Observable Oblects
     private ArrayList<Piece> teamsMap = new ArrayList<Piece>();
+
     private ArrayList<Piece> firstTeamArray = new ArrayList<>();
     private  ArrayList<Piece> secondTeamArray = new ArrayList<>();
 
     private Player player;
     PlayersBoard  playersBoard;
+
+
 
 
     // default Constructor
@@ -62,6 +65,8 @@ public class SquareBoard implements Board {
     public void addListener(BoardController boardController){
        this.boardController = boardController;
     }
+
+
 
     // view does not have any data from model to put them on the board boardcontroller has to give them to view via this method
     // MVC design pattern
@@ -95,9 +100,9 @@ public class SquareBoard implements Board {
 
     public void updateThePiecePosition(Piece piece, int row, int col) {
 
-            squareBoardTiles[row][col].setText(piece.getPieceType());
-            squareBoardTiles[row][col].setHorizontalTextPosition(0);
-            squareBoardTiles[row][col].setVerticalTextPosition(0);
+            squareBoardTiles[col][row].setText(piece.getPieceType());
+            squareBoardTiles[col][row].setHorizontalTextPosition(0);
+            squareBoardTiles[col][row].setVerticalTextPosition(0);
             System.out.println(piece.getPieceType() + " is to move to this location : row " + row + " col" + col);
       }
 
@@ -107,8 +112,12 @@ public class SquareBoard implements Board {
         squareBoardTiles[newCol][newRow].setText(piece.getPieceType());
         squareBoardTiles[newCol][newRow].setHorizontalTextPosition(0);
         squareBoardTiles[newCol][newRow].setVerticalTextPosition(0);
+
+        System.out.println(piece.getPieceType() + " was on the tile : row " + oldRow + " col" + oldCol);
+
         System.out.println(piece.getPieceType() + " is to move to this location : row " + newRow + " col" + newCol);
     }
+
 
     public final void initializingBoard(){
 
@@ -136,7 +145,16 @@ public class SquareBoard implements Board {
         tools.add(new JButton("Save")); // TODO - add functionality!
         tools.add(new JButton("Restore")); // TODO - add functionality!
         tools.addSeparator();
-        tools.add(new JButton("QUIT")); // TODO - add functionality!
+
+        Action quitGame = new AbstractAction("QUIT") {
+
+            public void actionPerformed(ActionEvent e) {
+                quiteGame();
+            }
+        };
+        tools.add(quitGame);
+
+
         tools.addSeparator();
         tools.add(message);
         tools.addSeparator();
@@ -211,22 +229,6 @@ public class SquareBoard implements Board {
                 System.out.println("which tile are we at: " + i + " , " +j);
             }
         }
-
-
-        //  gameBoard.add(new JLabel(""));
-        // fill the top row
-
-       /* Set<String>  teamsType = teamsMap.keySet();
-
-        for (String teamType : teamsType)
-
-          for (int i = 0; i < numberOfPiecesInEachTeam + 1; i++) {
-              gameBoard.add(
-                    new JLabel(teamType.substring(i, i + 1),
-                            SwingConstants.CENTER)).setForeground(Color.WHITE);
-        }  */
-
-
 
     }
 
@@ -329,6 +331,23 @@ public class SquareBoard implements Board {
 
     // TODO - add functionality!
     public void undoMove(){
+      boardController.playerUnDo();
 
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        for (Piece piece : teamsMap)
+         if(o == piece) {
+            ArrayList<Point > piece_Old_New_Positions = piece.getPieceMovementPosition();
+            updateThePiecePosition( piece , piece_Old_New_Positions.get(0).x , piece_Old_New_Positions.get(0).y,
+                    piece_Old_New_Positions.get(1).x , piece_Old_New_Positions.get(1).y );
+            break;
+        }
+    }
+
+
+    public void quiteGame(){
+        System.exit(0);
     }
 }

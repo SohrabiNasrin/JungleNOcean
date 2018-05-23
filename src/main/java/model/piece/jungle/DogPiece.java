@@ -10,9 +10,7 @@ import model.piece.JunglePiece;
 import model.piece.Piece;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 // The model is responsible for its data and only pass them to its controller, its is implementing the Piece interface for Polymorphism design purpose
@@ -23,53 +21,92 @@ import java.util.Map;
 // Cofoja has beeen used to do Apply Design By Contract
 //@Invariant("piceColumn<5 && pieceColumn > 0")
 
-public class DogPiece implements JunglePiece {
+public class DogPiece extends Observable implements JunglePiece  {
 
 	private int pieceColumn;
 	private int pieceRow;
 	private boolean status = true;
-
-	// store the piece movement in order to do the undo later
-	private Map<Integer, Point > piecePositions = new HashMap<Integer, Point>();
-
-
-	// the number of moves that piece does, start with 0
-	private static int theMovementNumber = 0;
+	ArrayList<Point> pieceMovementPosition;
 
 
 //	@Requires("diceRoll != null && diceRoll < 6 && diceRoll > 0")
 
-	public void move(int diceRoll) {
+	public ArrayList<Point> move(int diceRoll) {
+		pieceMovementPosition = new ArrayList<>();
 
-		//for (int i = 0; i < diceRoll; i++) {
-			if (this.pieceColumn < 4 && diceRoll < 2) {
+		Point previousPoint = new Point( this.pieceRow , this.pieceColumn );
+
+		int currentColumn = this.pieceColumn;
+		int currentRow = this.pieceRow;
+
+		int nextColumn = this.pieceColumn + diceRoll;
+		int nextRow = currentRow;
+
+		if(nextColumn > 4) {
+			nextColumn = nextColumn - 4;
+			nextRow++;
+		}
+
+		this.pieceColumn = nextColumn;
+		this.pieceRow = nextRow;
+
+		/*if (this.pieceColumn < 4 && diceRoll < 2) {
 				this.pieceColumn += diceRoll;
 			} else {
 				this.pieceRow++;
 				this.pieceColumn = 0;
-			}
-		//}
+			} */
 
-		Point point = new Point(this.pieceRow , this.pieceColumn);
-		this.theMovementNumber++;
-		piecePositions.put(theMovementNumber , point);
+		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
 
-		System.out.println("DogPiece class, Dog to move" + piecePositions.get(theMovementNumber).x
-				+ piecePositions.get(theMovementNumber).y);
+		pieceMovementPosition.add(targetPosition);
+		pieceMovementPosition.add(previousPoint);
+
+		return pieceMovementPosition;
+	}
+
+
+
+
+	public void submitMove(ArrayList<Point> pieceMovementPosition){
+
+		pieceMovementPosition = pieceMovementPosition;
+		setChanged();
+		notifyObservers();
+	}
+
+
+	public void unDo(Point currentPosition, Point previousPosition){
+
+		pieceMovementPosition = new ArrayList<>();
+
+		this.setPieceRow(previousPosition.x);
+		this.setPieceColumn(previousPosition.y);
+
+		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
+
+		pieceMovementPosition.add(previousPosition);
+		pieceMovementPosition.add(currentPosition);
+
+		setChanged();
+		notifyObservers();
+
 
 	}
 
-	public Point rollBack(){
 
-		piecePositions.remove(theMovementNumber);
-		theMovementNumber -=1;
 
-		Point rolledbackPoint = new Point(piecePositions.get(theMovementNumber).x, piecePositions.get(theMovementNumber).y);
-		return  rolledbackPoint;
+	public ArrayList<Point> getPieceMovementPosition(){return pieceMovementPosition;}
+
+
+	public void addObserver(Observer ob){
+		super.addObserver(ob);
 	}
 
 	public void capture(Piece piecetoCapture) {
 		// TODO Auto-generated method stub
+		this.status = false;
+
 	}
 
 	public int getRow() {
@@ -81,17 +118,13 @@ public class DogPiece implements JunglePiece {
 		return this.pieceColumn;
 	}
 
-	public void setPiecePositions(int movementNumber , Point piecePosition) {
-		piecePositions.put(movementNumber , piecePosition );
+	public void setPiecePositions( Point piecePosition) {
+
+		this.setPieceRow(piecePosition.x);
+		this.setPieceColumn(piecePosition.y);
 		System.out.println("The Dog is initialized in position " + piecePosition.x + " and Y is " + piecePosition.y);
 	}
 
-	public Point getLastPosition(){
-		System.out.println("Dog to move" + piecePositions.get((theMovementNumber) - 1));
-
-		return piecePositions.get((theMovementNumber) - 1) ;
-
-	}
 
 	public String getPieceType() {
 		return "dog";

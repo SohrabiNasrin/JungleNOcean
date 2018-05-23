@@ -23,12 +23,8 @@ public class ElectriceelPieceController {
     public int getElectricEelCol() {return electricEelCol;}
     public String getPieceType(){return electricEelPiece.getPieceType();}
 
-    public void setPiecePositions(int movementNumber , Point piecePosition) {
-        electricEelPiece.setPiecePositions(movementNumber , piecePosition );
+    public void setPiecePositions( Point piecePosition) {
+        electricEelPiece.setPiecePositions(piecePosition );
     }
-
-
-    // get the piece position on one position before the last move
-    public Point getPieceOldPosition() { return electricEelPiece.getLastPosition();}
 
 }

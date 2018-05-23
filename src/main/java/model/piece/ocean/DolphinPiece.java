@@ -6,36 +6,32 @@
 
 package model.piece.ocean;
 
-//import com.google.java.contract.Invariant;
-//import com.google.java.contract.Requires;
 import model.piece.OceanPiece;
 import model.piece.Piece;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.util.Observable;
+import java.util.Observer;
 
 // Cofoja has beeen used to do Apply Design By Contract
 //@Invariant("piceColumn<5 && pieceColumn > 0")
 
-public class DolphinPiece implements OceanPiece {
+public class DolphinPiece extends Observable implements OceanPiece {
 
 	private int pieceColumn;
 	private int pieceRow;
 	private boolean status = true ;
 	SharkPiece sharkPieceLink = null;
 
-	// store the piece movement in order to do the undo later
-	private Map<Integer, Point > piecePositions = new HashMap<Integer, Point>();
-
-	// the number of moves that piece does, start with 0
-	private static int theMovementNumber = 0;
+	private ArrayList<Point> pieceMovementPosition;
 
 
 	//@Requires("diceRoll != null && diceRoll < 6 && diceRoll > 0")
-	public void move(int diceRoll) {
+	public ArrayList<Point> move(int diceRoll) {
+
+		pieceMovementPosition = new ArrayList<>();
+		Point previousPoint = new Point( this.pieceRow , this.pieceColumn );
 
 		//this.sharkPieceLink.setMovementFromDolphin(toGiveToShark);
 		--diceRoll;
@@ -48,24 +44,50 @@ public class DolphinPiece implements OceanPiece {
 			this.pieceColumn = 0;
 		}
 
-		Point point = new Point(pieceRow , pieceColumn);
-		theMovementNumber++;
-		piecePositions.put(theMovementNumber , point);
+		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
+
+		pieceMovementPosition.add(targetPosition);
+		pieceMovementPosition.add(previousPoint);
+		return pieceMovementPosition;
+	}
+
+	public void submitMove(ArrayList<Point> pieceMovementPosition){
+
+		pieceMovementPosition = pieceMovementPosition;
+		setChanged();
+		notifyObservers();
+	}
+
+
+	public void unDo(Point currentPosition, Point previousPosition){
+
+		pieceMovementPosition = new ArrayList<>();
+
+		this.setPieceRow(previousPosition.x);
+		this.setPieceColumn(previousPosition.y);
+
+		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
+
+		pieceMovementPosition.add(previousPosition);
+		pieceMovementPosition.add(currentPosition);
+
+		setChanged();
+		notifyObservers();
+
 
 	}
 
-	public Point rollBack(){
+	public ArrayList<Point> getPieceMovementPosition(){return pieceMovementPosition;}
 
-		piecePositions.remove(theMovementNumber);
-		theMovementNumber -=1;
+	public void addObserver(Observer ob){
+		super.addObserver(ob);
 
-		Point rolledbackPoint = new Point(piecePositions.get(theMovementNumber).x, piecePositions.get(theMovementNumber).y);
-		return  rolledbackPoint;
 	}
 
 
 	public void capture(Piece piecetoCapture) {
 		// TODO Auto-generated method stub
+		this.status = false;
 
 	}
 
@@ -78,15 +100,15 @@ public class DolphinPiece implements OceanPiece {
 	}
 	public void setPieceRow(int row) {this.pieceRow = row;}
 	public void setPieceColumn(int column) {this.pieceColumn = column;}
-
 	public int getColumn() {
 		return this.pieceColumn;
 	}
 
-	public void setPiecePositions(int movementNumber , Point piecePosition) {
-		piecePositions.put(movementNumber , piecePosition );
-		System.out.println("The Dolphin is initialized in position " + piecePosition.x + " and Y is " + piecePosition.y);
 
+	public void setPiecePositions(Point piecePosition) {
+		this.setPieceRow(piecePosition.x);
+		this.setPieceColumn(piecePosition.y);
+		System.out.println("The Dolphin is initialized in position " + piecePosition.x + " and Y is " + piecePosition.y);
 	}
 
 
@@ -94,7 +116,6 @@ public class DolphinPiece implements OceanPiece {
 		return "dolphin";
 	}
 
-	public Point getLastPosition(){ return piecePositions.get((theMovementNumber) - 1) ;}
 
 	public boolean isAlive(){ return status;}
 

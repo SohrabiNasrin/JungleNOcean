@@ -29,11 +29,8 @@ public class SharkPieceController {
     public int getSharkCol() {return sharkCol;}
     public String getPieceType(){return sharkPiece.getPieceType();}
 
-    public void setPiecePositions(int movementNumber , Point piecePosition) {
-        sharkPiece.setPiecePositions(movementNumber , piecePosition );
+    public void setPiecePositions(Point piecePosition) {
+        sharkPiece.setPiecePositions(piecePosition );
     }
-
-    // get the piece position on one position before the last move
-    public Point getPieceOldPosition() { return sharkPiece.getLastPosition();}
 
 }

@@ -6,8 +6,9 @@ import model.piece.Piece;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Observer;
 
-public interface Board {
+public interface Board extends Observer {
 
     void drawBoard();
     void updateThePiecePosition(Piece pieceName , int col , int row);

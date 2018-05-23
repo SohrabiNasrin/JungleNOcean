@@ -1,9 +1,13 @@
 package view;
 
+import model.piece.Piece;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.Observable;
+import java.util.Observer;
 
-public class PlayersBoard {
+public class PlayersBoard implements Observer{
 
     private JPanel panel1 ;
     private JLabel lion ;
@@ -34,6 +38,32 @@ public class PlayersBoard {
     public void setTurnLabel(String turnMessage) {turnLabel.setText(turnMessage);}
 
 
+    public void setLionMove(String pieceNewPosition){
+        lionMove.setText(" hase moved to : " + pieceNewPosition);
+    }
+
+    public void setTurtleMove(String pieceNewPosition){
+        TurtleMove.setText(" hase moved to : " + pieceNewPosition);
+    }
+
+    public void setRabbitMove(String pieceNewPosition){
+        rabbitMove.setText(" hase moved to : " + pieceNewPosition);
+    }
+    public void setDogMove(String pieceNewPosition){
+        dogMove.setText(" hase moved to : " + pieceNewPosition);
+    }
+    public void setDolphinMove(String pieceNewPosition){
+        dolphinMove.setText(" hase moved to : " + pieceNewPosition);
+    }
+    public void setSharkMove(String pieceNewPosition){
+        sharkMove.setText(" hase moved to : " + pieceNewPosition);
+    }
+    public void setJellyfishMove(String pieceNewPosition){
+        TurtleMove.setText(" hase moved to : " + pieceNewPosition);
+    }
+    public void setElectricEelMove(String pieceNewPosition){
+        electricEelMove.setText(" hase moved to : " + pieceNewPosition);
+    }
 
 
     public PlayersBoard(int positionX , int positionY){
@@ -53,7 +83,9 @@ public class PlayersBoard {
 
     }
 
+    public PlayersBoard getPlayerBoard(){return this;}
 
-
-
+    @Override
+    public void update(Observable o, Object arg) {
+    }
 }

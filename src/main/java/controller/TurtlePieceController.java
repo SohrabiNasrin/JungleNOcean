@@ -25,12 +25,11 @@ public class TurtlePieceController {
     public int getTurtleCol() {return turtleCol;}
     public String getPieceType(){return turtlePiece.getPieceType();}
 
-    public void setPiecePositions(int movementNumber , Point piecePosition) {
-        turtlePiece.setPiecePositions(movementNumber , piecePosition );
+    public void setPiecePositions( Point piecePosition) {
+        turtlePiece.setPiecePositions(piecePosition );
     }
 
     // get the piece position on one position before the last move
-    public Point getPieceOldPosition() { return turtlePiece.getLastPosition();}
 
 
 

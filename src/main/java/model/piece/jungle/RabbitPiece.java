@@ -13,31 +13,28 @@ import model.piece.JunglePiece;
 import model.piece.Piece;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 // Cofoja has beeen used to do Apply Design By Contract
 //@Invariant("piceColumn<5 && pieceColumn > 0")
 
-public class RabbitPiece implements JunglePiece {
+public class RabbitPiece extends Observable implements JunglePiece {
 
 	private int pieceColumn;
 	private int pieceRow;
 	private boolean status = true ;
 
-	// store the piece movement in order to do the undo later
-	private Map<Integer, Point > piecePositions = new HashMap<Integer, Point>();
-
-	// the number of moves that piece does, start with 0
-	private static int theMovementNumber = 0;
+	private ArrayList<Point> pieceMovementPosition;
 
 
 
 	//@Requires("diceRoll != null && diceRoll < 6 && diceRoll > 0")
 
-	public void move(int diceRoll) {
+	public ArrayList<Point> move(int diceRoll) {
+
+		pieceMovementPosition = new ArrayList<>();
+		Point previousPoint = new Point( this.pieceRow , this.pieceColumn );
 
 		int toMove = diceRoll*2;
 
@@ -49,27 +46,47 @@ public class RabbitPiece implements JunglePiece {
 			this.pieceRow ++;
 			this.pieceColumn = 2;
 		}
-	//	}
 
-		Point point = new Point(pieceRow , pieceColumn);
-		theMovementNumber++;
-		piecePositions.put(theMovementNumber , point);
+		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
+
+		pieceMovementPosition.add(targetPosition);
+		pieceMovementPosition.add(previousPoint);
+	    return pieceMovementPosition;
 
 	}
 
-	public Point rollBack(){
+	public void unDo(Point currentPosition, Point previousPosition){
 
-		piecePositions.remove(theMovementNumber);
-		theMovementNumber -=1;
+		pieceMovementPosition = new ArrayList<>();
 
-		Point rolledbackPoint = new Point(piecePositions.get(theMovementNumber).x, piecePositions.get(theMovementNumber).y);
-		return  rolledbackPoint;
+		this.setPieceRow(previousPosition.x);
+		this.setPieceColumn(previousPosition.y);
+
+		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
+
+		pieceMovementPosition.add(previousPosition);
+		pieceMovementPosition.add(currentPosition);
+
+		setChanged();
+		notifyObservers();
+
+
 	}
+
+	public ArrayList<Point> getPieceMovementPosition(){return pieceMovementPosition;}
+
+	public void addObserver(Observer ob){
+		super.addObserver(ob);
+
+	}
+
+
 
 
 	public void capture(Piece piecetoCapture) {
 		// TODO Auto-generated method stub
-		
+		this.status = false;
+
 	}
 	
 	public int getRow() {
@@ -82,18 +99,25 @@ public class RabbitPiece implements JunglePiece {
 		return this.pieceColumn;
 	}
 
-	public void setPiecePositions(int movementNumber , Point piecePosition) {
-		piecePositions.put(movementNumber , piecePosition );
-		System.out.println("The Rabbit is initialized in position " + piecePosition.x + " and Y is " + piecePosition.y);
-
+	public void setPiecePositions( Point piecePosition) {
+		this.setPieceRow(piecePosition.x);
+		this.setPieceColumn(piecePosition.y);
+		System.out.println("The Dog is initialized in position " + piecePosition.x + " and Y is " + piecePosition.y);
 	}
 
+	public void submitMove(ArrayList<Point> pieceMovementPosition){
+
+		pieceMovementPosition = pieceMovementPosition;
+		setChanged();
+		notifyObservers();
+		//pieceMovementPosition.remove(0);
+
+	}
 
 	public String getPieceType() {
 		return "rabbit";
 	}
 
-	public Point getLastPosition(){ return piecePositions.get((theMovementNumber) - 1) ;}
 
 	public boolean isAlive(){ return status;}
 

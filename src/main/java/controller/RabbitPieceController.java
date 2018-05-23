@@ -41,11 +41,8 @@ public class RabbitPieceController {
     public int getRabbitCol(){return rabbitCol;}
     public String getPieceType(){return rabbitPiece.getPieceType();}
 
-    // get the piece position on one position before the last move
-    public Point getPieceOldPosition() { return rabbitPiece.getLastPosition();}
-
-    public void setPiecePositions(int movementNumber , Point piecePosition) {
-        rabbitPiece.setPiecePositions(movementNumber , piecePosition );
+    public void setPiecePositions(Point piecePosition) {
+        rabbitPiece.setPiecePositions(piecePosition );
     }
 
 

@@ -25,13 +25,8 @@ public class DolphinPieceController {
     public int getDolphinCol() {return dolphinCol;}
     public String getPieceType(){return dolphinPiece.getPieceType();}
 
-    public void setPiecePositions(int movementNumber , Point piecePosition) {
-        dolphinPiece.setPiecePositions(movementNumber , piecePosition );
+    public void setPiecePositions(Point piecePosition) {
+        dolphinPiece.setPiecePositions( piecePosition );
     }
-
-    // get the piece position on one position before the last move
-    public Point getPieceOldPosition() { return dolphinPiece.getLastPosition();}
-
-
 
 }

@@ -1,6 +1,8 @@
 package controller;
 
 import design.BoardFactory;
+import design.HistoryManager;
+import design.MoveCommand;
 import model.Player;
 import model.piece.Piece;
 import view.Board;
@@ -33,8 +35,13 @@ public class BoardController {
 	private ArrayList<Piece> pieceArrayList = new ArrayList<>();
     private Map<String , Integer> pieceMovement;
 
+    HistoryManager history = new HistoryManager();
+
 
     private boolean playerTurns = true;
+
+    private boolean playerUnDo = false;
+    private int unDoCounter = 0;
 
 
 	public BoardController(String boardType , int numberOfPieces, DiceController diceController , PieceController pieceController ){
@@ -43,12 +50,15 @@ public class BoardController {
 		this.pieceController = pieceController;
 		//piecesMap = pieceController.getPiecesMap();
 
-		pieceArrayList = pieceController.getPiecesMap();;
+		pieceArrayList = pieceController.getPiecesMap();
+
 		}
 
 
-
  	public void play(Piece piece){
+
+		this.playerUnDo = false;
+		this.unDoCounter = 0;
 		playerToMove(piece.getType(), piece);
 	}
 
@@ -56,14 +66,10 @@ public class BoardController {
 
 		movement = diceController.rollDice();
 
-      	ArrayList<Point> pieceMomevent = pieceController.move(movement, piece);
-		System.out.println( piece + " old postions is " + "row : " + pieceMomevent.get(1).x
-				+ " col " + pieceMomevent.get(1).y);
-
-
-  	// update the board buttons
-		board.updateThePiecePosition(piece , pieceMomevent.get(0).x, pieceMomevent.get(0).y ,
-				pieceMomevent.get(1).x, pieceMomevent.get(1).y);
+		// create a new command
+		MoveCommand moveCommand = new MoveCommand(piece, movement, this.pieceController);
+		// Calling history - command design pattern
+		history.addAndExecute(moveCommand);
 
 	}
 
@@ -94,6 +100,7 @@ public class BoardController {
 		// Create board via BoardFactory
 		board = new BoardFactory().createBoard(boardType, numberOfPieces);
 
+
 		// Binding view, which is Board here, to Controller
 		board.addListener(this);
 
@@ -105,12 +112,16 @@ public class BoardController {
 				usersPieces.add(piece);
 			else opponentPieces.add(piece);
 		}
-		userPlayer  = new Player(userTeam ,this , usersPieces);
 
+		userPlayer  = new Player(userTeam ,this , usersPieces);
+		userPlayer.setTurn(true);
+		board.setTurn(userPlayer.getPlayerName());
 		opponentPlayer = new Player( opponentPieces.get(0).getType(), this, opponentPieces);
+
 		// initialize the players based on the selected team of the program's user
 
 		initializeTeamPiecesOnBoard();
+		bindObservablesAndObserver(board);
 
 	}
 
@@ -127,6 +138,8 @@ public class BoardController {
 		  {
 	    	userPlayer.move(pieceName);
 			board.setTurn(opponentPlayer.getPlayerName());
+			opponentPlayer.setTurn(true);
+			userPlayer.setTurn(false);
 			switchPlayer();
 		  }
 
@@ -134,10 +147,18 @@ public class BoardController {
 		if(opponentPlayer.getPlayerName().contains(pieceTeam)  && !playerTurns) {
 	    	opponentPlayer.move(pieceName);
 			board.setTurn(userPlayer.getPlayerName());
+			userPlayer.setTurn(true);
+			opponentPlayer.setTurn(false);
 			switchPlayer();
 		}
 	}
 
+
+	// add Observer (board) to the Observable objects(pieces)
+    public void bindObservablesAndObserver(Board board){
+		for( Piece piece: pieceArrayList)
+			piece.addObserver(board);
+	}
 
 	public void switchPlayer(){
 		playerTurns = !playerTurns;
@@ -145,12 +166,69 @@ public class BoardController {
 
 	// TODO Auto-generated method stub
     public void resetBoard(){
+		history = new HistoryManager();
+
+
+		userPlayer.setUnDoCounter(0);
+		userPlayer.setTurn(true);
+		board.setTurn(userPlayer.getPlayerName());
+		opponentPlayer.setUnDoCounter(0);
+	}
+
+	public void playerUnDo(){
+
+		setTurnForUnDo();
+
+		if (this.unDoCounter == 0) {
+			if (userPlayer.getTurn() ) {
+				this.userPlayer.unDo();
+				System.out.println("Inside the playUnDO method for " + userPlayer.getPlayerName());
+			} else  {
+				this.opponentPlayer.unDo();
+				System.out.println("Inside the playUnDO method for " + opponentPlayer.getPlayerName());
+			}
+		}
+		else {
+			if(userPlayer.getTurn()) {
+				this.userPlayer.unDo();
+				System.out.println("Inside the playUnDO method for " + userPlayer.getPlayerName());
+			}
+			else {
+				this.opponentPlayer.unDo();
+				System.out.println("Inside the playUnDO method for " + opponentPlayer.getPlayerName());
+			}
+		}
+
+		this.unDoCounter++;
+	}
+
+	public void setTurnForUnDo() {
+
+
+		if(!this.playerUnDo) {
+			System.out.println("Inside the setTurnForUnDo method");
+
+			if (userPlayer.getTurn()) {
+				userPlayer.setTurn(false);
+				opponentPlayer.setTurn(true);
+				board.setTurn(opponentPlayer.getPlayerName());
+				switchPlayer();
+			} else {
+				userPlayer.setTurn(true);
+				opponentPlayer.setTurn(false);
+				board.setTurn(userPlayer.getPlayerName());
+				switchPlayer();
+			}
+
+			this.playerUnDo = true;
+		}
+ 	}
+
+	public void unDo(){
+
+			history.undoTheLast();
 
 	}
 
 
-
-
-
-	
 }
