@@ -8,6 +8,7 @@ import model.piece.Piece;
 import view.Board;
 import view.MainBoard;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -15,12 +16,9 @@ import java.util.Map;
 // BoardController is responsible for creating and controlling the View (which is Board here that has been created through BoardFactroy)
 // and also getting the data from Model and passing them to View. MVC Design has been applied here.
 // Dependency Inversion also has been applied to send the diceController and PieceController to BoardController in constructor.
-
-
 // Cofoja has been used for this class to show the applied Design By Contract pattern
 
 public class BoardController {
-	
 	private MainBoard mainBoard;
 	private Board board;
 	private BoardFactory boardFactory ;
@@ -63,14 +61,11 @@ public class BoardController {
 	}
 
 	public void move(Piece piece){
-
 		movement = diceController.rollDice();
-
 		// create a new command
 		MoveCommand moveCommand = new MoveCommand(piece, movement, this.pieceController);
 		// Calling history - command design pattern
 		history.addAndExecute(moveCommand);
-
 	}
 
 	// initializing dataStructure in View based on Data that has been provided to controller form Model, so that view (here the board) can update itself
@@ -122,7 +117,6 @@ public class BoardController {
 
 		initializeTeamPiecesOnBoard();
 		bindObservablesAndObserver(board);
-
 	}
 
 //	@Ensures("board != null && board instanceOf Board" )
@@ -134,14 +128,15 @@ public class BoardController {
 
 		// first Team to move
 
-		if (userPlayer.getPlayerName().contains(pieceTeam) && playerTurns)
-		  {
+		if (userPlayer.getPlayerName().contains(pieceTeam) && playerTurns) {
 	    	userPlayer.move(pieceName);
 			board.setTurn(opponentPlayer.getPlayerName());
 			opponentPlayer.setTurn(true);
 			userPlayer.setTurn(false);
 			switchPlayer();
-		  }
+		}
+
+		this.checkVictory();
 
 		// second team to move
 		if(opponentPlayer.getPlayerName().contains(pieceTeam)  && !playerTurns) {
@@ -151,12 +146,14 @@ public class BoardController {
 			opponentPlayer.setTurn(false);
 			switchPlayer();
 		}
+
+		this.checkVictory();
 	}
 
 
 	// add Observer (board) to the Observable objects(pieces)
     public void bindObservablesAndObserver(Board board){
-		for( Piece piece: pieceArrayList)
+		for(Piece piece: pieceArrayList)
 			piece.addObserver(board);
 	}
 
@@ -167,8 +164,6 @@ public class BoardController {
 	// TODO Auto-generated method stub
     public void resetBoard(){
 		history = new HistoryManager();
-
-
 		userPlayer.setUnDoCounter(0);
 		userPlayer.setTurn(true);
 		board.setTurn(userPlayer.getPlayerName());
@@ -224,11 +219,49 @@ public class BoardController {
 		}
  	}
 
-	public void unDo(){
+ 	public void checkVictory() {
+		ArrayList<Piece> junglePieces = new ArrayList<Piece>();
+		ArrayList<Piece> oceanPieces = new ArrayList<Piece>();
 
-			history.undoTheLast();
+		int junglePiecesDeadCount = 0;
+		int oceanPiecesDeadCount = 0;
+		String winner = "";
+		for(Piece piece : this.pieceArrayList) {
+			if(piece.getPieceType().equals("dog") || piece.getPieceType().equals("lion") || piece.getPieceType().equals("rabbit") || piece.getPieceType().equals("turtle")) {
+				if(!piece.isAlive()) {
+					junglePiecesDeadCount++;
+				} else {
+					if(piece.getRow() == 4 && piece.getColumn() < 4) {
+						winner = "jungle";
+					}
+				}
+			} else {
+				if(!piece.isAlive()) {
+					oceanPiecesDeadCount++;
+				} else {
+					if(piece.getRow() == 0 && piece.getColumn() < 4) {
+						winner = "ocean";
+					}
+				}
+			}
+		}
 
+		if(junglePiecesDeadCount == 4) {
+			winner = "ocean";
+		} else if (oceanPiecesDeadCount == 4) {
+			winner = "jungle";
+		}
+
+		if(winner.equals("jungle")) {
+			JOptionPane.showMessageDialog(null, "Jungle player wins!");
+			System.exit(0);
+		} else if (winner.equals("ocean")) {
+			JOptionPane.showMessageDialog(null, "Ocean player wins!");
+			System.exit(0);
+		}
 	}
 
-
+	public void unDo(){
+		history.undoTheLast();
+	}
 }

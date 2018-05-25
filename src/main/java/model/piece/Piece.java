@@ -27,6 +27,7 @@ public interface Piece{
 	ArrayList<Point> getPieceMovementPosition();
 	boolean isAlive();
 	void addObserver(Observer ob);
+	void release(Point piecePosition);
 
 	void unDo(Point currentPosition, Point prevoiusPosition);
 

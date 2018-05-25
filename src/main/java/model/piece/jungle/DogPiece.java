@@ -9,6 +9,7 @@ package model.piece.jungle;
 import model.piece.JunglePiece;
 import model.piece.Piece;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
@@ -33,29 +34,32 @@ public class DogPiece extends Observable implements JunglePiece  {
 
 	public ArrayList<Point> move(int diceRoll) {
 		pieceMovementPosition = new ArrayList<>();
-
 		Point previousPoint = new Point( this.pieceRow , this.pieceColumn );
 
-		int currentColumn = this.pieceColumn;
-		int currentRow = this.pieceRow;
-
-		int nextColumn = this.pieceColumn + diceRoll;
-		int nextRow = currentRow;
-
-		if(nextColumn > 4) {
-			nextColumn = nextColumn - 4;
-			nextRow++;
-		}
-
-		this.pieceColumn = nextColumn;
-		this.pieceRow = nextRow;
-
-		/*if (this.pieceColumn < 4 && diceRoll < 2) {
-				this.pieceColumn += diceRoll;
+		String moveType = this.getMoveType();
+		if(moveType.equals("Move Only 1")) {
+			System.out.println(">>" + moveType + "<<");
+			if(this.pieceColumn < 4) {
+				this.pieceColumn++;
 			} else {
 				this.pieceRow++;
 				this.pieceColumn = 0;
-			} */
+			}
+		} else {
+			for(int i = 0; i < diceRoll; i++) {
+				if(this.pieceColumn < 4) {
+					this.pieceColumn++;
+				} else {
+					this.pieceRow++;
+					this.pieceColumn = 0;
+				}
+			}
+		}
+
+		if(pieceRow > 4) {
+			this.pieceRow = 4;
+			this.pieceColumn = 0;
+		}
 
 		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
 
@@ -132,5 +136,35 @@ public class DogPiece extends Observable implements JunglePiece  {
 
 	public boolean isAlive(){ return status;}
 
+	public void release(Point piecePosition){
+		pieceMovementPosition = new ArrayList<>();
 
-}
+		this.setPieceRow(piecePosition.x);
+		this.setPieceColumn(piecePosition.y);
+
+		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
+
+		pieceMovementPosition.add(targetPosition);
+		pieceMovementPosition.add(targetPosition);
+
+		setChanged();
+		notifyObservers();
+
+		this.status = true;
+	}
+
+	public String getMoveType() {
+		JFrame frame = new JFrame("Input Dialog Example 3");
+		String[] options = {"Move Normal", "Move Only 1"};
+		String moveType = (String) JOptionPane.showInputDialog(frame,
+				"Move Normally or Move Up 1?",
+				"Choose your move:",
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				"Move");
+
+		return moveType;
+	}
+
+	}

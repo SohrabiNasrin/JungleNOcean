@@ -49,7 +49,6 @@ public  class PieceController extends Observable {
         pieceArrayList.add(jellyfishPiece);
         SharkPiece sharkPiece = new SharkPiece();
         pieceArrayList.add(sharkPiece);
-
     }
 
     public Boolean checkCollision(Point piecePosition , Piece piece){
@@ -116,6 +115,11 @@ public  class PieceController extends Observable {
     public void setInitialPiecePositions(Piece piece, Point initialPosition){
 
          piece.setPiecePositions(initialPosition);
+
+    }
+
+    public void releaseCapturedPiece(Piece piece, Point piecePosition){
+        piece.release(piecePosition);
 
     }
 }

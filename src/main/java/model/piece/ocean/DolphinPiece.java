@@ -1,7 +1,8 @@
 //----------------------------------------------------------
 //Blue Piece 1 : Dolphin
 //----------------------------------------------------------
-//Only moves 1 and gives the rest to shark
+// If it rolls more than a 3, it moves 4
+// If it rolls less than a 3, it moves 3
 //----------------------------------------------------------
 
 package model.piece.ocean;
@@ -9,6 +10,7 @@ package model.piece.ocean;
 import model.piece.OceanPiece;
 import model.piece.Piece;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -29,18 +31,37 @@ public class DolphinPiece extends Observable implements OceanPiece {
 
 	//@Requires("diceRoll != null && diceRoll < 6 && diceRoll > 0")
 	public ArrayList<Point> move(int diceRoll) {
-
 		pieceMovementPosition = new ArrayList<>();
 		Point previousPoint = new Point( this.pieceRow , this.pieceColumn );
 
-		//this.sharkPieceLink.setMovementFromDolphin(toGiveToShark);
-		--diceRoll;
-		if(diceRoll < 2 && this.pieceColumn < 4 ){
+		String moveType = this.getMoveType();
+		if(moveType.equals("Move Only 1")) {
+			System.out.println(">>" + moveType + "<<");
+			if(this.pieceColumn < 4) {
+				this.pieceColumn++;
+			} else {
+				this.pieceRow++;
+				this.pieceColumn = 0;
+			}
+		} else {
+			if(diceRoll > 3) {
+				diceRoll = 4;
+			} else {
+				diceRoll = 3;
+			}
 
-			this.pieceColumn += diceRoll;
+			for(int i = 0; i < diceRoll; i++) {
+				if(this.pieceColumn < 4) {
+					this.pieceColumn++;
+				} else {
+					this.pieceRow--;
+					this.pieceColumn = 0;
+				}
+			}
+		}
 
-		 }else {
-			this.pieceRow--;
+		if(pieceRow < 0) {
+			this.pieceRow = 0;
 			this.pieceColumn = 0;
 		}
 
@@ -119,5 +140,35 @@ public class DolphinPiece extends Observable implements OceanPiece {
 
 	public boolean isAlive(){ return status;}
 
+	public void release(Point piecePosition){
+		pieceMovementPosition = new ArrayList<>();
+
+		this.setPieceRow(piecePosition.x);
+		this.setPieceColumn(piecePosition.y);
+
+		Point targetPosition = new Point(this.pieceRow , this.pieceColumn);
+
+		pieceMovementPosition.add(targetPosition);
+		pieceMovementPosition.add(targetPosition);
+
+		setChanged();
+		notifyObservers();
+
+		this.status = true;
+	}
+
+	public String getMoveType() {
+		JFrame frame = new JFrame("Input Dialog Example 3");
+		String[] options = {"Move Normal", "Move Only 1"};
+		String moveType = (String) JOptionPane.showInputDialog(frame,
+				"Move Normally or Move Up 1?",
+				"Choose your move:",
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				options,
+				"Move");
+
+		return moveType;
+	}
 
 }

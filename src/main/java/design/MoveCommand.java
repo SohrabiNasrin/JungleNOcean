@@ -44,7 +44,7 @@ public class MoveCommand implements Command{
 
         pieceController.unDo(targetPosition, previousPosition , piece);
         if(killedPiece != null){
-          //  killedPiece
+            pieceController.releaseCapturedPiece(killedPiece, killedPiecePosition);
         }
     }
 

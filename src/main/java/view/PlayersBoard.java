@@ -1,13 +1,11 @@
 package view;
 
-import model.piece.Piece;
+import design.GameObserver;
+import design.GameSubject;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.Observable;
-import java.util.Observer;
 
-public class PlayersBoard implements Observer{
+public class PlayersBoard implements GameObserver {
 
     private JPanel panel1 ;
     private JLabel lion ;
@@ -33,6 +31,7 @@ public class PlayersBoard implements Observer{
     private JLabel jungleTurn;
     private JLabel oceanTurn;
     private JLabel turnLabel;
+
 
 
     public void setTurnLabel(String turnMessage) {turnLabel.setText(turnMessage);}
@@ -85,7 +84,9 @@ public class PlayersBoard implements Observer{
 
     public PlayersBoard getPlayerBoard(){return this;}
 
+
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(GameSubject obs, Object... obj) {
+
     }
 }

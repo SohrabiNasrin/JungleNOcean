@@ -5,7 +5,6 @@ import model.piece.ocean.DolphinPiece;
 import java.awt.*;
 
 public class DolphinPieceController {
-
     private DolphinPiece dolphinPiece;
     private int dolphinRow,
                 dolphinCol;
