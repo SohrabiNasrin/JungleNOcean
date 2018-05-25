@@ -1,9 +1,10 @@
 package model.piece;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public interface OceanPiece extends Piece{
+public interface OceanPiece extends Piece, Serializable {
 
     ArrayList<Point> move(int diceRoll);
 

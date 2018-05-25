@@ -10,6 +10,7 @@ import view.MainBoard;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ import java.util.Map;
 // Dependency Inversion also has been applied to send the diceController and PieceController to BoardController in constructor.
 // Cofoja has been used for this class to show the applied Design By Contract pattern
 
-public class BoardController {
+public class BoardController implements Serializable {
 	private MainBoard mainBoard;
 	private Board board;
 	private BoardFactory boardFactory ;
@@ -263,5 +264,38 @@ public class BoardController {
 
 	public void unDo(){
 		history.undoTheLast();
+	}
+
+	public void saveGame(){
+
+		String path = System.getProperty("user.dir") + "/myGame.txt";
+		System.out.println(path);
+
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(new File(path));
+			ObjectOutputStream gameHistory = new ObjectOutputStream(fileOutputStream);
+			gameHistory.writeObject(history);
+			gameHistory.close();
+			fileOutputStream.close();
+
+		}catch(IOException io) {System.out.println("HistoryManager " + io);}
+
+
+		System.exit(0);}
+
+	public void reLoad(){
+		String path = System.getProperty("user.dir") + "/myGame.txt";
+		System.out.println(path + "insaide reload boardcontroller");
+     try {
+    	FileInputStream fi = new FileInputStream(new File(path));
+    	ObjectInputStream oi = new ObjectInputStream(fi);
+    	history = (HistoryManager) oi.readObject();
+    	oi.close();
+	    fi.close();
+     }catch(Exception io) {System.out.println("Boardcontroller reload" + io);}
+
+        System.out.println("the size of the history reloaded " + history.size() + "  " + history);
+		history.reload();
+
 	}
 }

@@ -142,9 +142,24 @@ public class SquareBoard implements Board, Observer {
         };
 
         tools.add(newGameAction);
-        tools.add(new JButton("Save")); // TODO - add functionality!
-        tools.add(new JButton("Restore")); // TODO - add functionality!
-        tools.addSeparator();
+        final Action saveGame = new AbstractAction("save") {
+            public void actionPerformed(ActionEvent e) {
+                saveGame();
+            }
+        };
+
+        tools.add(saveGame);
+       // tools.add(new JButton("Restore")); // TODO - add functionality!
+      //  tools.addSeparator();
+
+        Action reLoad = new AbstractAction("reLoad") {
+
+            public void actionPerformed(ActionEvent e) {
+                reLoad();
+            }
+        };
+        tools.add(reLoad);
+
 
         Action quitGame = new AbstractAction("QUIT") {
 
@@ -349,5 +364,14 @@ public class SquareBoard implements Board, Observer {
 
     public void quiteGame(){
         System.exit(0);
+    }
+
+
+    public void saveGame(){
+      boardController.saveGame();
+    }
+
+    public void reLoad(){
+        boardController.reLoad();
     }
 }

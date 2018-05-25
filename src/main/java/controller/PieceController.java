@@ -12,6 +12,7 @@ import model.piece.ocean.SharkPiece;
 import view.Board;
 
 import java.awt.*;
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.Observable;
 
 
-public  class PieceController extends Observable {
+public  class PieceController extends Observable implements  Serializable {
 
 
     private Map<String , Boolean> piecesStatus = new HashMap<String, Boolean>();

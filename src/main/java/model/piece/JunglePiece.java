@@ -3,11 +3,12 @@ package model.piece;
 
 
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
-public interface JunglePiece extends Piece {
+public interface JunglePiece extends Piece , Serializable {
 
     ArrayList<Point> move(int diceRoll);
 
